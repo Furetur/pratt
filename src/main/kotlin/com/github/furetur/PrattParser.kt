@@ -14,6 +14,7 @@ sealed class AstNode {
     data class Number(val value: Int) : AstNode()
     data class Operator(val operator: Token.Operator, val left: AstNode, val right: AstNode) : AstNode()
     data class PrefixOperator(val operator: Token.Operator, val operand: AstNode) : AstNode()
+    data class PostfixOperator(val operator: Token.Operator, val operand: AstNode) : AstNode()
 }
 
 class TokenCursor(val tokens: List<Token>) {
@@ -24,7 +25,8 @@ class TokenCursor(val tokens: List<Token>) {
 
 class PrattParser(
     private val infixBindingPowers: Map<Token.Operator, Pair<Int, Int>> = emptyMap(),
-    private val prefixBindingPowers: Map<Token.Operator, Int> = emptyMap()
+    private val prefixBindingPowers: Map<Token.Operator, Int> = emptyMap(),
+    private val postfixBindingPowers: Map<Token.Operator, Int> = emptyMap(),
 ) {
     fun parse(text: List<Token>): AstNode {
         return internalParse(TokenCursor(text), 0)
@@ -44,6 +46,15 @@ class PrattParser(
         while (true) {
             val nextOperator = cursor.peek() ?: break
             if (nextOperator !is Token.Operator) error("Unexpected token '$nextOperator', expected an operator")
+            val postfixBindingPower = postfixBindingPowers[nextOperator]
+            if (postfixBindingPower != null) {
+                if (postfixBindingPower < minBindingPower) {
+                    break
+                }
+                leftSide = AstNode.PostfixOperator(nextOperator, leftSide)
+                cursor.next()
+                continue
+            }
             val (leftBindingPower, rightBindingPower) = infixBindingPowers[nextOperator]
                 ?: error("Unknown infix operator '$nextOperator'")
             if (leftBindingPower < minBindingPower) break
