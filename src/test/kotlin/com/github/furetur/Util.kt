@@ -11,7 +11,7 @@ private enum class MyTokenTypes : LixyTokenType {
 
 private val lexer = lixy {
     state {
-        anyOf("*", "+", "^") isToken MyTokenTypes.OPERATOR
+        anyOf("*", "+", "^", "-") isToken MyTokenTypes.OPERATOR
         anyOf(" ", "\n", "\t") isToken MyTokenTypes.WHITESPACE
         matches("[0-9]+") isToken MyTokenTypes.NUMBER
     }
