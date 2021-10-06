@@ -11,10 +11,12 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven(url = "https://jitpack.io")
 }
 
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.5.31")
+    testImplementation("guru.zoroark.lixy:lixy-jvm:-SNAPSHOT")
 }
 
 tasks.test {
