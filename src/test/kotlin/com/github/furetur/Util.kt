@@ -28,4 +28,5 @@ fun String.tokenize(): List<Token> = lexer.tokenize(this).filter { it.tokenType 
 fun AstNode.stringify(): String = when (this) {
     is AstNode.Number -> value.toString()
     is AstNode.Operator -> "(${left.stringify()}$operator${right.stringify()})"
+    is AstNode.PrefixOperator -> "(-${operand.stringify()})"
 }
