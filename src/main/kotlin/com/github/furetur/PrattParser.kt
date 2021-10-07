@@ -19,6 +19,8 @@ sealed class AstNode {
 
 class TokenCursor(val tokens: List<Token>) {
     var nextIndex = 0
+    val isDone: Boolean
+        get() = nextIndex !in tokens.indices
     fun next(): Token? = tokens.getOrNull(nextIndex++)
     fun peek(): Token? = tokens.getOrNull(nextIndex)
 }
@@ -29,16 +31,26 @@ class PrattParser(
     private val postfixBindingPowers: Map<Token.Operator, Int> = emptyMap(),
 ) {
     fun parse(text: List<Token>): AstNode {
-        return internalParse(TokenCursor(text), 0)
+        val cursor = TokenCursor(text)
+        return internalParse(cursor, 0).also {
+            if (!cursor.isDone) error("Cursor is not done")
+        }
     }
 
     fun internalParse(cursor: TokenCursor, minBindingPower: Int): AstNode {
         var leftSide: AstNode = when (val nextToken = cursor.next()) {
             is Token.Number -> AstNode.Number(nextToken.value)
             is Token.Operator -> {
-                val prefixBindingPower = prefixBindingPowers[nextToken] ?: error("Unexpected prefix operator $nextToken")
-                val prefixOperand = internalParse(cursor, prefixBindingPower)
-                AstNode.PrefixOperator(nextToken, prefixOperand)
+                if (nextToken.symbol == "(") {
+                    val body = internalParse(cursor, 0)
+                    val next = cursor.next()
+                    require(next is Token.Operator && next.symbol == ")") { "Expected closing bracket" }
+                    body
+                } else {
+                    val prefixBindingPower = prefixBindingPowers[nextToken] ?: error("Unexpected prefix operator $nextToken")
+                    val prefixOperand = internalParse(cursor, prefixBindingPower)
+                    AstNode.PrefixOperator(nextToken, prefixOperand)
+                }
             }
             null -> error("Unexpected end of tokens")
         }
@@ -55,12 +67,16 @@ class PrattParser(
                 cursor.next()
                 continue
             }
-            val (leftBindingPower, rightBindingPower) = infixBindingPowers[nextOperator]
-                ?: error("Unknown infix operator '$nextOperator'")
-            if (leftBindingPower < minBindingPower) break
-            cursor.next()
-            val rightSide = internalParse(cursor, rightBindingPower)
-            leftSide = AstNode.Operator(nextOperator, leftSide, rightSide)
+            val infixBindingPower = infixBindingPowers[nextOperator]
+            if (infixBindingPower != null) {
+                val (leftBindingPower, rightBindingPower) = infixBindingPower
+                if (leftBindingPower < minBindingPower) break
+                cursor.next()
+                val rightSide = internalParse(cursor, rightBindingPower)
+                leftSide = AstNode.Operator(nextOperator, leftSide, rightSide)
+                continue
+            }
+            break
         }
         return leftSide
     }
