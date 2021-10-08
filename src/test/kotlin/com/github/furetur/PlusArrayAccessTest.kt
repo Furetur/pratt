@@ -1,6 +1,7 @@
 package com.github.furetur
 
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 internal class PlusArrayAccessTest {
@@ -44,5 +45,25 @@ internal class PlusArrayAccessTest {
     @Test
     fun `should parse double in the middle of expression in 1 + 2{3}{4} + 5`() {
         assertEquals("((1+((2[3])[4]))+5)", "1 + 2[3][4] + 5".parse().stringify())
+    }
+
+    @Test
+    fun `should parse expressions in index position in 1{2 + 3}`() {
+        assertEquals("(1[(2+3)])", "1[2 + 3]".parse().stringify())
+    }
+    @Test
+    fun `should parse expression in index position in double 1{2 + 3}{4 + 5}`() {
+        assertEquals("((1[(2+3)])[(4+5)])", "1[2+3][4+5]".parse().stringify())
+    }
+
+    @Test
+    fun `should parse array access inside array access with expression`() {
+        assertEquals("(1[(2+((3+4)[5]))])", "1[2 + (3+4)[5]]".parse().stringify())
+    }
+    @Test
+    fun `should throw if brackets are empty {}`() {
+        assertThrows<Exception> {
+            "1[]".parse()
+        }
     }
 }
