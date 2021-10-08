@@ -15,6 +15,7 @@ sealed class AstNode {
     data class Operator(val operator: Token.Operator, val left: AstNode, val right: AstNode) : AstNode()
     data class PrefixOperator(val operator: Token.Operator, val operand: AstNode) : AstNode()
     data class PostfixOperator(val operator: Token.Operator, val operand: AstNode) : AstNode()
+    data class ArrayAccess(val array: AstNode, val index: AstNode) : AstNode()
 }
 
 class TokenCursor(val tokens: List<Token>) {
@@ -44,7 +45,7 @@ class PrattParser(
                 if (nextToken.symbol == "(") {
                     val body = internalParse(cursor, 0)
                     val next = cursor.next()
-                    require(next is Token.Operator && next.symbol == ")") { "Expected closing bracket" }
+                    require(next is Token.Operator && next.symbol == ")") { "Expected closing parenthesis" }
                     body
                 } else {
                     val prefixBindingPower = prefixBindingPowers[nextToken] ?: error("Unexpected prefix operator $nextToken")
@@ -63,8 +64,15 @@ class PrattParser(
                 if (postfixBindingPower < minBindingPower) {
                     break
                 }
-                leftSide = AstNode.PostfixOperator(nextOperator, leftSide)
                 cursor.next()
+                leftSide = if (nextOperator.symbol == "[") {
+                    val indexExpression = internalParse(cursor, 0)
+                    val next = cursor.next()
+                    require(next is Token.Operator && next.symbol == "]") { "Expected closing bracket ]" }
+                    AstNode.ArrayAccess(leftSide, indexExpression)
+                } else {
+                    AstNode.PostfixOperator(nextOperator, leftSide)
+                }
                 continue
             }
             val infixBindingPower = infixBindingPowers[nextOperator]
