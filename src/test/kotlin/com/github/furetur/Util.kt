@@ -25,6 +25,24 @@ fun String.tokenize(): List<Token> = lexer.tokenize(this).filter { it.tokenType 
     }
 }
 
+private val parser = PrattParser(
+    infixBindingPowers = mapOf(
+        Token.Operator("+") to Pair(1, 2),
+        Token.Operator("-") to Pair(1, 2),
+        Token.Operator("*") to Pair(3, 4),
+        Token.Operator("^") to Pair(6, 5),
+    ),
+    prefixBindingPowers = mapOf(
+        Token.Operator("-") to 2,
+    ),
+    postfixBindingPowers = mapOf(
+        Token.Operator("[") to 3,
+        Token.Operator("!") to 3
+    )
+)
+
+fun String.parse() = parser.parse(tokenize())
+
 fun AstNode.stringify(): String = when (this) {
     is AstNode.Number -> value.toString()
     is AstNode.Operator -> "(${left.stringify()}$operator${right.stringify()})"
