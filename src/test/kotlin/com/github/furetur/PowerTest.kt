@@ -9,7 +9,7 @@ internal class PowerTest {
         val expression = (1..100).joinToString("^")
         var expected = "100"
         for (i in 99 downTo 1) {
-            expected = "($i^$expected)"
+            expected = "($i $expected ^)"
         }
         assertEquals(expected, expression.parse().stringify())
     }
