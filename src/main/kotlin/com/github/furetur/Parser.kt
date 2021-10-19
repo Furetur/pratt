@@ -4,22 +4,23 @@ import com.github.furetur.cursor.ListTokenCursor
 import com.github.furetur.cursor.TokenCursor
 import com.github.furetur.parselets.BeginningParselet
 import com.github.furetur.parselets.FollowingParselet
+import kotlin.jvm.Throws
 
 class Parser<T : Token>(
     private val beginningParselets: Map<TokenType, BeginningParselet<T>> = emptyMap(),
     private val followingParselets: Map<TokenType, FollowingParselet<T>> = emptyMap()
 ) {
-    fun parse(tokens: List<T>): Expression<T> {
-        val cursor = ListTokenCursor(tokens)
-        return parseExpression(Context(cursor), 0).also {
-            if (!cursor.isDone) error("Cursor is not done")
-        }
+    @Throws(ParsingException::class)
+    fun parse(tokens: Iterable<T>): Expression<T> = parse(ListTokenCursor(tokens.toList()))
+
+    fun parse(cursor: TokenCursor<T>): Expression<T> {
+        return parseExpression(Context(cursor), 0)
     }
 
     private fun parseExpression(context: Context, minBindingPower: Int): Expression<T> {
-        val beginningToken = context.next() ?: error("Unexpected end")
+        val beginningToken = context.next() ?: throw UnexpectedEndException()
         var leftSide = beginningParselets[beginningToken.tokenType]?.parse(beginningToken, context)
-            ?: error("Unknown token $beginningToken")
+            ?: throw UnexpectedTokenException(beginningToken)
 
         while (true) {
             val nextOperator = context.peekNext() ?: break

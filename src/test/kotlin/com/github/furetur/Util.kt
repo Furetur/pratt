@@ -45,7 +45,7 @@ fun String.tokenize(): List<MyToken> = lexer.tokenize(this).filter { it.tokenTyp
     }
 }
 
-private val parser = Parser<MyToken>(
+val parser = Parser<MyToken>(
     beginningParselets = mapOf(
         MyPrattTokenType.Operator("-") to PrefixOperatorParselet(2),
         MyPrattTokenType.Number to AtomicParselet(),

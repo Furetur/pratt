@@ -2,6 +2,7 @@ package com.github.furetur.cursor
 
 import com.github.furetur.Token
 import com.github.furetur.TokenType
+import com.github.furetur.UnexpectedEndException
 
 interface TokenCursor<out T : Token> {
     val isDone: Boolean
@@ -12,6 +13,6 @@ interface TokenCursor<out T : Token> {
 
 fun <T : Token> TokenCursor<T>.expectNext(tokenType: TokenType) {
     if (next()?.tokenType != tokenType) {
-        error("")
+        throw UnexpectedEndException()
     }
 }
