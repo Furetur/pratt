@@ -54,4 +54,17 @@ fun main() {
 }
 ```
 
+## Use as a dependency
 
+* Go to the _Releases page_ and find out the latest version
+* Then add _pratt_ as a Jitpack dependency
+
+```kotlin
+repositories {
+    maven(url = "https://jitpack.io")
+}
+
+dependencies {
+    implementation("com.github.Furetur:pratt:<latest version>")
+}
+```
