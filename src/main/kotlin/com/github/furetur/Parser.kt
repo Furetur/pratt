@@ -6,21 +6,22 @@ import com.github.furetur.parselets.BeginningParselet
 import com.github.furetur.parselets.FollowingParselet
 import kotlin.jvm.Throws
 
-class Parser<T : Token>(
-    private val beginningParselets: Map<TokenType, BeginningParselet<T>> = emptyMap(),
-    private val followingParselets: Map<TokenType, FollowingParselet<T>> = emptyMap()
+class Parser<Tok, TokType>(
+    private val getTokenType: (Tok) -> TokType,
+    private val beginningParselets: Map<TokType, BeginningParselet<Tok, TokType>> = emptyMap(),
+    private val followingParselets: Map<TokType, FollowingParselet<Tok, TokType>> = emptyMap()
 ) {
     @Throws(ParsingException::class)
-    fun parse(tokens: Iterable<T>): Expression<T> = parse(ListTokenCursor(tokens.toList()))
+    fun parse(tokens: Iterable<Tok>): Expression<Tok> = parse(ListTokenCursor(tokens.toList()))
 
-    fun parse(cursor: TokenCursor<T>): Expression<T> {
+    fun parse(cursor: TokenCursor<Tok>): Expression<Tok> {
         return parseExpression(Context(cursor), 0)
     }
 
-    private fun parseExpression(context: Context, minBindingPower: Int): Expression<T> {
+    private fun parseExpression(context: Context, minBindingPower: Int): Expression<Tok> {
         val beginningToken = context.next() ?: throw UnexpectedEndException()
         var leftSide = beginningParselets[beginningToken.tokenType]?.parse(beginningToken, context)
-            ?: throw UnexpectedTokenException(beginningToken)
+            ?: throw UnexpectedTokenException(beginningToken.toString())
 
         while (true) {
             val nextOperator = context.peekNext() ?: break
@@ -35,7 +36,17 @@ class Parser<T : Token>(
         return leftSide
     }
 
-    inner class Context(private val cursor: TokenCursor<T>) : TokenCursor<T> by cursor {
+    private val Tok.tokenType: TokType
+        get() = getTokenType(this)
+
+    inner class Context(private val cursor: TokenCursor<Tok>) : TokenCursor<Tok> by cursor {
         fun parseExpression(minBindingPower: Int = 0) = parseExpression(this, minBindingPower)
+
+        fun expectNext(tokenType: TokType) {
+            val nextToken = next()
+            if (nextToken?.tokenType != tokenType) {
+                throw UnexpectedTokenException(nextToken.toString())
+            }
+        }
     }
 }

@@ -23,12 +23,12 @@ private val lexer = lixy {
     }
 }
 
-sealed class MyPrattTokenType : TokenType {
+sealed class MyPrattTokenType {
     data class Operator(val symbol: String) : MyPrattTokenType()
     object Number : MyPrattTokenType()
 }
 
-sealed class MyToken(override val tokenType: MyPrattTokenType) : Token {
+sealed class MyToken(val tokenType: MyPrattTokenType) {
     data class Operator(val symbol: String) : MyToken(MyPrattTokenType.Operator(symbol)) {
         override fun toString(): String = symbol
     }
@@ -45,7 +45,8 @@ fun String.tokenize(): List<MyToken> = lexer.tokenize(this).filter { it.tokenTyp
     }
 }
 
-val parser = Parser<MyToken>(
+val parser = Parser<MyToken, MyPrattTokenType>(
+    getTokenType = { it.tokenType },
     beginningParselets = mapOf(
         MyPrattTokenType.Operator("-") to PrefixOperatorParselet(2),
         MyPrattTokenType.Number to AtomicParselet(),

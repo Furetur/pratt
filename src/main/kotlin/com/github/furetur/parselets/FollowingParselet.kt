@@ -2,10 +2,9 @@ package com.github.furetur.parselets
 
 import com.github.furetur.Expression
 import com.github.furetur.Parser
-import com.github.furetur.Token
 
-interface FollowingParselet<T : Token> {
+interface FollowingParselet<Tok, TokType> {
     val leftBindingPower: Int
 
-    fun parse(firstOperand: Expression<T>, followingToken: T, context: Parser<T>.Context): Expression<T>
+    fun parse(firstOperand: Expression<Tok>, followingToken: Tok, context: Parser<Tok, TokType>.Context): Expression<Tok>
 }

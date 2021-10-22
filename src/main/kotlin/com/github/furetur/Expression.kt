@@ -1,6 +1,6 @@
 package com.github.furetur
 
-sealed class Expression<T> {
-    data class Atomic<T>(val token: T) : Expression<T>()
-    data class Operator<T>(val operator: T, val operands: List<Expression<T>>) : Expression<T>()
+sealed class Expression<Tok> {
+    data class Atomic<Tok>(val token: Tok) : Expression<Tok>()
+    data class Operator<Tok>(val operator: Tok, val operands: List<Expression<Tok>>) : Expression<Tok>()
 }
