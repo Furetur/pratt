@@ -23,7 +23,7 @@ class Parser<Tok, TokType>(
         if (cursor.isDone) {
             return parseResult
         } else {
-            throw UnexpectedTokenException(cursor.peekNext().toString())
+            throw UnexpectedTokenException(cursor.nextTextPosition, cursor.peekNext().toString())
         }
     }
 
@@ -39,9 +39,13 @@ class Parser<Tok, TokType>(
     }
 
     private fun parseExpression(context: Context, minBindingPower: Int): Node<Tok> {
-        val beginningToken = context.next() ?: throw UnexpectedEndException()
+        val beginningToken = context.next() ?: throw UnexpectedEofException(context.currentTextPosition)
         var leftSide = beginningParselets[beginningToken.tokenType]?.parse(beginningToken, context)
-            ?: throw UnexpectedTokenException(beginningToken.toString())
+            ?: throw UnexpectedTokenException(
+                context.currentTextPosition,
+                beginningToken.toString(),
+                beginningParselets.keys.map { it.toString() }
+            )
 
         while (true) {
             val nextOperator = context.peekNext() ?: break
@@ -69,9 +73,9 @@ class Parser<Tok, TokType>(
          * Eat the next token and throw an exception if it is not [tokenType].
          */
         fun expectNext(tokenType: TokType) {
-            val nextToken = next()
-            if (nextToken?.tokenType != tokenType) {
-                throw UnexpectedTokenException(nextToken.toString())
+            val nextToken = next() ?: throw UnexpectedEofException(currentTextPosition)
+            if (nextToken.tokenType != tokenType) {
+                throw UnexpectedTokenException(currentTextPosition, nextToken.toString(), listOf(tokenType.toString()))
             }
         }
     }

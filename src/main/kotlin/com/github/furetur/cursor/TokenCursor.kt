@@ -5,6 +5,9 @@ package com.github.furetur.cursor
  */
 interface TokenCursor<out Tok> {
     val isDone: Boolean
+    val currentTextPosition: Int
+    val nextTextPosition: Int
+        get() = currentTextPosition + 1
 
     fun next(): Tok?
     fun peekNext(): Tok?
