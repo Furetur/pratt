@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("guru.zoroark.lixy:lixy-jvm:-SNAPSHOT")
+    testImplementation("guru.zoroark.lixy:lixy-jvm:1849bb1")
     // JUnit 5
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.1")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.1")
