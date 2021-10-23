@@ -27,6 +27,6 @@ internal class ValidExpressionsTest {
     @ParameterizedTest
     @MethodSource("getInputsAndExpectedOutputs")
     fun `should be parsed correctly`(input: String, expected: String) {
-        assertEquals(expected.filter { !it.isWhitespace() }, input.parse().stringify().filter { !it.isWhitespace() })
+        assertEquals(expected.filter { !it.isWhitespace() }, input.parse().toString().filter { !it.isWhitespace() })
     }
 }

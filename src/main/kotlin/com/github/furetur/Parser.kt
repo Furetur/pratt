@@ -12,13 +12,13 @@ class Parser<Tok, TokType>(
     private val followingParselets: Map<TokType, FollowingParselet<Tok, TokType>> = emptyMap()
 ) {
     @Throws(ParsingException::class)
-    fun parse(tokens: Iterable<Tok>): Expression<Tok> = parse(ListTokenCursor(tokens.toList()))
+    fun parse(tokens: Iterable<Tok>): Node<Tok> = parse(ListTokenCursor(tokens.toList()))
 
-    fun parse(cursor: TokenCursor<Tok>): Expression<Tok> {
+    fun parse(cursor: TokenCursor<Tok>): Node<Tok> {
         return parseExpression(Context(cursor), 0)
     }
 
-    private fun parseExpression(context: Context, minBindingPower: Int): Expression<Tok> {
+    private fun parseExpression(context: Context, minBindingPower: Int): Node<Tok> {
         val beginningToken = context.next() ?: throw UnexpectedEndException()
         var leftSide = beginningParselets[beginningToken.tokenType]?.parse(beginningToken, context)
             ?: throw UnexpectedTokenException(beginningToken.toString())

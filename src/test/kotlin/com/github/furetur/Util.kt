@@ -62,9 +62,4 @@ val parser = pratt<Token, TokenType> {
     TokenType.Operator("[") isFollowingTokenOf ArrayIndexParselet(3, TokenType.Operator("]"))
 }
 
-fun String.parse(): Expression<Token> = parser.parse(tokenize())
-
-fun Expression<Token>.stringify(): String = when (this) {
-    is Expression.Atomic -> token.toString()
-    is Expression.Operator -> "(${operands.joinToString(" ") { it.stringify() }} $operator)"
-}
+fun String.parse(): Node<Token> = parser.parse(tokenize())

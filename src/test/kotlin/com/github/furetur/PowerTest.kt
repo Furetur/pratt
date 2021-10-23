@@ -11,6 +11,6 @@ internal class PowerTest {
         for (i in 99 downTo 1) {
             expected = "($i $expected ^)"
         }
-        assertEquals(expected, expression.parse().stringify())
+        assertEquals(expected, expression.parse().toString())
     }
 }
