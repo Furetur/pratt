@@ -2,6 +2,8 @@ package com.github.furetur
 
 interface Node<Tok> {
     val type: NodeType<Tok>
+
+    fun <R> accept(visitor: Visitor<Tok, R>): R = visitor.visit(this)
 }
 
 sealed class NodeType<Tok> {
