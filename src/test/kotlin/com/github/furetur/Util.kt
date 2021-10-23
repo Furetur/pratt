@@ -62,4 +62,4 @@ val parser = pratt<Token, TokenType> {
     TokenType.Operator("[") isFollowingTokenOf ArrayIndexParselet(3, TokenType.Operator("]"))
 }
 
-fun String.parse(): Node<Token> = parser.parse(tokenize())
+fun String.parse(): Node<Token> = parser.parseFull(tokenize())

@@ -4,6 +4,10 @@ import com.github.furetur.Node
 import com.github.furetur.NodeType
 import com.github.furetur.Parser
 
+/**
+ * Parselet for parsing array element access expressions: `arr[1]`, `arr[2 + 3]` and etc. In general:
+ * expression := expression '[' expression ']'
+ */
 class ArrayIndexParselet<Tok, TokType>(
     override val leftBindingPower: Int,
     private val closingBracketTokenType: TokType

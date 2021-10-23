@@ -1,7 +1,6 @@
 package com.github.furetur
 
 import com.charleskorn.kaml.Yaml
-import com.github.furetur.cursor.ListTokenCursor
 import kotlinx.serialization.decodeFromString
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
@@ -27,14 +26,8 @@ internal class InvalidExpressionsTest {
     @ParameterizedTest
     @MethodSource("getInputs")
     fun `should be parsed correctly`(input: String) {
-        val cursor = ListTokenCursor(input.tokenize())
         assertThrows<ParsingException> {
-            parser.parse(cursor)
-            // TODO: this is a quick dirty fix.
-            // TODO: Idk if we should distinguish between ParsingErrors and situations when not the full string was parsed
-            if (!cursor.isDone) {
-                throw ParsingException("Cursor is not done")
-            }
+            parser.parseFull(input.tokenize())
         }
     }
 }

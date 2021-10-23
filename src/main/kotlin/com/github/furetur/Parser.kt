@@ -11,9 +11,29 @@ class Parser<Tok, TokType>(
     private val beginningParselets: Map<TokType, BeginningParselet<Tok, TokType>> = emptyMap(),
     private val followingParselets: Map<TokType, FollowingParselet<Tok, TokType>> = emptyMap()
 ) {
+    /**
+     * Attempts to parse the entire stream of tokens.
+     * Throws an error if expression ends before the token stream.
+     * @throws ParsingException
+     */
     @Throws(ParsingException::class)
-    fun parse(tokens: Iterable<Tok>): Node<Tok> = parse(ListTokenCursor(tokens.toList()))
+    fun parseFull(tokens: Iterable<Tok>): Node<Tok> {
+        val cursor = ListTokenCursor(tokens.toList())
+        val parseResult = parse(cursor)
+        if (cursor.isDone) {
+            return parseResult
+        } else {
+            throw UnexpectedTokenException(cursor.peekNext().toString())
+        }
+    }
 
+    /**
+     * Parses the expression moving the cursor.
+     * Assumes that the cursor points to the start of the expression.
+     * Will stop parsing and moving the cursor when the expression ends.
+     * @throws ParsingException
+     */
+    @Throws(ParsingException::class)
     fun parse(cursor: TokenCursor<Tok>): Node<Tok> {
         return parseExpression(Context(cursor), 0)
     }
@@ -40,8 +60,14 @@ class Parser<Tok, TokType>(
         get() = getTokenType(this)
 
     inner class Context(private val cursor: TokenCursor<Tok>) : TokenCursor<Tok> by cursor {
+        /**
+         * Move the cursor forward and parse the next expression
+         */
         fun parseExpression(minBindingPower: Int = 0) = parseExpression(this, minBindingPower)
 
+        /**
+         * Eat the next token and throw an exception if it is not [tokenType].
+         */
         fun expectNext(tokenType: TokType) {
             val nextToken = next()
             if (nextToken?.tokenType != tokenType) {
