@@ -1,6 +1,6 @@
 # Pratt
 
-> Library for parsing expressions and a beatiful Kotlin DSL
+> Library for parsing expressions and a beautiful Kotlin DSL
 
 Just define your operators and operands with the Kotlin DSL and the parser is ready!
 
