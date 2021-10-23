@@ -14,10 +14,11 @@ We will parse simple mathematical expressions that contain
 * Prefix unary operators: `+` and `-`
 * Infix binary operators: `+`, `-`, '*' and right associative power operators `^`
 * Postfix unary operator: factorial `!`
+* Parenthesis: `(` and `)`
 
 ```kotlin
 enum class TokenType {
-    ID, PLUS, MULTIPLY, MINUS, POWER, BANG
+    ID, PLUS, MULTIPLY, MINUS, POWER, BANG, LPAREN, RPAREN
 }
 
 fun getTokenType(char: Char) = when (char) {
@@ -27,6 +28,8 @@ fun getTokenType(char: Char) = when (char) {
     '-' -> MINUS
     '^' -> POWER
     '!' -> BANG
+    '(' -> LPAREN
+    ')' -> RPAREN
     else -> error("Unknown token")
 }
 
@@ -35,6 +38,7 @@ val parser = pratt<Char, TokenType> {
 
     atomic(ID)
 
+    grouping(LPAREN to RPAREN)
     // prefix
     prefix(PLUS) precedence 3
     prefix(MINUS) precedence 3
@@ -49,7 +53,7 @@ val parser = pratt<Char, TokenType> {
 
 fun main() {
     // builds AST
-    val tree = parser.parse("-a+b*c!".asIterable())
+    val tree = parser.parse("-(a+b)*c!".asIterable())
     println(tree)
 }
 ```

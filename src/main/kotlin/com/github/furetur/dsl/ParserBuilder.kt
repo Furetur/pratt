@@ -4,6 +4,7 @@ import com.github.furetur.Parser
 import com.github.furetur.parselets.AtomicParselet
 import com.github.furetur.parselets.BeginningParselet
 import com.github.furetur.parselets.FollowingParselet
+import com.github.furetur.parselets.GroupingParselet
 
 interface BeginningParseletBuilder<Tok, TokType> {
     fun build(): BeginningParselet<Tok, TokType>
@@ -18,7 +19,7 @@ class ParserBuilder<Tok, TokType> {
     private val beginningParselets: MutableMap<TokType, BeginningParseletBuilder<Tok, TokType>> = mutableMapOf()
     private val followingParselets: MutableMap<TokType, FollowingParseletBuilder<Tok, TokType>> = mutableMapOf()
 
-    private fun addBeginningParseletBuilder(
+    fun addBeginningParseletBuilder(
         tokenType: TokType,
         beginningParseletBuilder: BeginningParseletBuilder<Tok, TokType>
     ) {
@@ -27,7 +28,7 @@ class ParserBuilder<Tok, TokType> {
         }
     }
 
-    private fun addFollowingParseletBuilder(
+    fun addFollowingParseletBuilder(
         tokenType: TokType,
         followingParseletBuilder: FollowingParseletBuilder<Tok, TokType>
     ) {
@@ -62,6 +63,12 @@ class ParserBuilder<Tok, TokType> {
         PostfixParseletBuilder<Tok, TokType>().also {
             addFollowingParseletBuilder(tokenType, it)
         }
+
+    fun grouping(vararg bracketPairs: Pair<TokType, TokType>) {
+        for (bracketPair in bracketPairs) {
+            bracketPair.first isBeginningTokenOf GroupingParselet(bracketPair.second)
+        }
+    }
 
     fun build(): Parser<Tok, TokType> {
         val getTokenType = getTokenType

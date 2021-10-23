@@ -3,7 +3,6 @@ package com.github.furetur
 import com.github.furetur.dsl.Associativity.RIGHT
 import com.github.furetur.dsl.pratt
 import com.github.furetur.parselets.ArrayIndexParselet
-import com.github.furetur.parselets.GroupingParselet
 import guru.zoroark.lixy.LixyTokenType
 import guru.zoroark.lixy.lixy
 import guru.zoroark.lixy.matchers.anyOf
@@ -57,8 +56,9 @@ val parser = pratt<Token, TokenType> {
     infix(TokenType.Operator("^")) precedence 4 associativity RIGHT
     // postfix
     postfix(TokenType.Operator("!")) precedence 4
+    // grouping
+    grouping(TokenType.Operator("(") to TokenType.Operator(")"))
     // custom
-    TokenType.Operator("(") isBeginningTokenOf GroupingParselet(TokenType.Operator(")"))
     TokenType.Operator("[") isFollowingTokenOf ArrayIndexParselet(3, TokenType.Operator("]"))
 }
 
