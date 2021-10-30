@@ -17,6 +17,18 @@ repositories {
     maven(url = "https://jitpack.io")
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.github.furetur"
+            artifactId = "pratt"
+            version = "0.1.2"
+
+            from(components["java"])
+        }
+    }
+}
+
 dependencies {
     testImplementation("guru.zoroark.lixy:lixy-jvm:1849bb1")
     // JUnit 5
