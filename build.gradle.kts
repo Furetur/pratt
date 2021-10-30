@@ -5,10 +5,12 @@ plugins {
     kotlin("plugin.serialization") version "1.5.31"
     // Linters and formatters
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
+    // For JitPack
+    id("maven-publish")
 }
 
 group = "com.github.furetur"
-version = "0.1"
+version = "0.1.2"
 
 repositories {
     mavenCentral()
